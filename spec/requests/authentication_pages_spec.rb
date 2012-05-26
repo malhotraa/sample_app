@@ -39,6 +39,16 @@ describe "Authentication" do
         before { click_link "Sign out" }
         it { should have_link('Sign in') }
       end
+      
+      describe "should not be able to access new users action" do
+        before { get signup_path }
+        specify { response.should redirect_to(root_path) }
+      end
+      
+      describe "should not be able to access create users action" do
+        before { post users_path, { name: "a", email: "a@a.com", password: "foobar", password_confirmation: "foobar"} }
+        specify { response.should redirect_to(root_path) }
+      end
     end
   end
 
@@ -46,6 +56,11 @@ describe "Authentication" do
     
     describe "for non-signed-in users" do
       let(:user) { FactoryGirl.create(:user) }
+    
+      describe "Profile and Settings link should not appear" do
+        it { should_not have_link('Settings', href: edit_user_path(user)) }
+        it { should_not have_link('Profile', href: user_path(user)) }
+      end
     
       describe "when attempting to visit a protected page" do
         before do
@@ -59,6 +74,19 @@ describe "Authentication" do
 
           it "should render the desired protected page" do
             page.should have_selector('title', text: 'Edit user')
+          end
+          
+          describe "when signing in again" do
+            before do
+              visit signin_path
+              fill_in "Email",    with: user.email
+              fill_in "Password", with: user.password
+              click_button "Sign in"
+            end
+
+            it "should render the default (profile) page" do
+              page.should have_selector('title', text: user.name) 
+            end
           end
         end
       end
