@@ -137,6 +137,11 @@ describe "Authentication" do
         before { put user_path(wrong_user) }
         specify { response.should redirect_to(root_path) }
       end
+      
+      #describe "delete links should not appear for wrong user" do
+      #  before { visit user_path(user) }
+      #  it { should_not have_selector('a', text: delete) }
+      #end
     end
   
     describe "as non-admin user" do

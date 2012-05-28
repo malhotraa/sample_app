@@ -5,7 +5,33 @@ describe "MicropostPages" do
 
   let(:user) { FactoryGirl.create(:user) }
   before { sign_in user }
-
+  
+  describe "test for correct microposts count" do
+    before { visit root_path }
+    
+    describe "should show 1 micropost" do
+      before do
+        fill_in 'micropost_content', with: "Lorem ipsum"
+        click_button "Post"
+      end
+      it { should have_content('1 micropost') }
+      it { should_not have_content('microposts') }
+    end
+    
+    describe "should show 3 microposts" do
+      before do
+        fill_in 'micropost_content', with: "Lorem ipsum"
+        click_button "Post"
+        fill_in 'micropost_content', with: "Lorem ipsum"
+        click_button "Post"
+        fill_in 'micropost_content', with: "Lorem ipsum"
+        click_button "Post"
+      end
+      it { should have_content('3 microposts') }
+      it { should_not have_content(/micropost/) }
+    end
+  end
+  
   describe "micropost creation" do
     before { visit root_path }
     
@@ -28,7 +54,6 @@ describe "MicropostPages" do
         expect { click_button "Post" }.should change(Micropost, :count).by(1)
       end
     end
-  
   end
 
   describe "micropost destruction" do
